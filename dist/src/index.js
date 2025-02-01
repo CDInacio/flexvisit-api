@@ -1,0 +1,24 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const user_route_1 = require("./routes/user.route");
+const booking_route_1 = require("./routes/booking.route");
+const notifications_route_1 = require("./routes/notifications.route");
+const schedule_route_1 = require("./routes/schedule.route");
+const form_route_1 = require("./routes/form.route");
+dotenv_1.default.config();
+const app = (0, express_1.default)();
+app.use(express_1.default.json());
+app.use((0, cors_1.default)());
+app.use('/user', user_route_1.userRouter);
+app.use('/schedule', schedule_route_1.scheduleRouter);
+app.use('/booking', booking_route_1.bookingRouter);
+app.use('/notifications', notifications_route_1.notificationsRouter);
+app.use('/form', form_route_1.formRouter);
+const port = process.env.PORT || 3001;
+app.listen(port || 30001, () => console.log(`Server is running on port ${port}`));

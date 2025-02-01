@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model RefreshToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  token     String   @unique
+  userId    String   @db.ObjectId
+  user      Users    @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Users {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  fullname      String
+  document      String
+  phoneNumber   String
+  email         String         @unique
+  profileImage  String?
+  password      String
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  forms         Form[]
+  bookings      Booking[]
+  notifications Notification[]
+  tokens        RefreshToken[]
+}
+
+model Form {
+  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  form_name        String
+  form_description String
+  user             Users       @relation(fields: [user_id], references: [id])
+  user_id          String      @db.ObjectId
+  form_fields      FormField[]
+  isActive         Boolean     @default(false)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  bookings         Booking[] // Adicione este campo para referenciar os bookings
+}
+
+model FormField {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  field_name     String
+  field_type     String
+  field_required Boolean
+  Form           Form?    @relation(fields: [formId], references: [id])
+  formId         String?  @db.ObjectId
+  options        String[]
+}
+
+model Booking {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  form        Form     @relation(fields: [formId], references: [id])
+  formId      String   @db.ObjectId
+  user        Users?   @relation(fields: [userId], references: [id])
+  userId      String?  @db.ObjectId
+  data        Json
+  status      String   @default("pendente")
+  observation String?
+  createdAt   DateTime @default(now())
+  qrCode      String?
+}
+
+model Schedule {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  date      String     @unique
+  timeslots Timeslot[]
+  // bookings  Booking[]
+
+  // @@index([date])
+}
+
+model Timeslot {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  starttime  String
+  endtime    String
+  available  Boolean   @default(true)
+  schedule   Schedule? @relation(fields: [scheduleId], references: [id])
+  scheduleId String?   @db.ObjectId
+}
+
+enum Role {
+  USER
+  ADMIN
+  ATTENDANT
+  COORDINATOR
+}
+
+model Notification {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  message       String
+  description   String
+  recipientId   String?  @db.ObjectId
+  recipientRole Role
+  read          Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user Users? @relation(fields: [recipientId], references: [id])
+}
