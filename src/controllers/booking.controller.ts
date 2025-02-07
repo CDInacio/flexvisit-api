@@ -273,6 +273,7 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       },
       data: {
         status: status,
+        qrCode: qrCodeDataURL,
       },
     });
 
