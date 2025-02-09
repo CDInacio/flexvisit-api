@@ -266,7 +266,6 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
         });
       }
     }
-
     const updatedBooking = await prisma.booking.update({
       where: {
         id: id,
@@ -276,6 +275,7 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
         qrCode: status === "aprovado" ? qrCodeDataURL : null,
       },
     });
+    console.log(updatedBooking);
 
     await prisma.notification.create({
       data: {
