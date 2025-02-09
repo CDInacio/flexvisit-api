@@ -199,7 +199,11 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
     `;
 
     const qrCodeDataURL = await QRCode.toDataURL(bookingInfo);
-    console.log(qrCodeDataURL);
+
+    if (!qrCodeDataURL) {
+      return res.status(500).json({ message: "Falha na geração do QR Code" });
+    }
+
     await transporter.sendMail({
       from: `"Agendamento" <${process.env.EMAIL_USER}>`,
       to: user.email,
@@ -383,7 +387,6 @@ export const updateBooking = async (req: any, res: Response) => {
         },
       },
     });
-    console.log(user);
 
     await prisma.notification.create({
       data: {
