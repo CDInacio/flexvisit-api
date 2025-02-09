@@ -220,7 +220,15 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       };
       console.log("Iniciano upload da imagem para o ImgBB...");
 
-      qrCodeUrl = await uploadImageToImgBB(fakeFile);
+      try {
+        qrCodeUrl = await uploadImageToImgBB(fakeFile);
+        console.log("✅ QR Code hospedado no ImgBB:", qrCodeUrl);
+      } catch (err) {
+        console.error(
+          "❌ Erro no upload para ImgBB:",
+          (err as any).response?.data || (err as Error).message
+        );
+      }
     }
 
     await transporter.sendMail({
