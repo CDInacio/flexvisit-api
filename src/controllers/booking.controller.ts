@@ -199,7 +199,7 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
     `;
 
     const qrCodeDataURL = await QRCode.toDataURL(bookingInfo);
-
+    console.log(qrCodeDataURL);
     await transporter.sendMail({
       from: `"Agendamento" <${process.env.EMAIL_USER}>`,
       to: user.email,
