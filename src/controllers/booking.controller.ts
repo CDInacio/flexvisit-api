@@ -3,6 +3,7 @@ import { prisma } from "../services/prisma";
 import { transporter } from "../services/email-service";
 import QRCode from "qrcode";
 import { calculateDateDifference } from "../utils/dataDiference";
+import { uploadImageToImgBB } from "../utils/img";
 
 export const createBooking = async (req: any, res: Response) => {
   const { formId, ...formData } = req.body;
@@ -198,10 +199,28 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       - Link para mais detalhes: https:seusite.com/agendamento/${id}
     `;
 
-    const qrCodeDataURL = await QRCode.toDataURL(bookingInfo);
+    // const qrCodeDataURL = await QRCode.toDataURL(bookingInfo);
 
-    if (!qrCodeDataURL) {
-      return res.status(500).json({ message: "Falha na geração do QR Code" });
+    let qrCodeUrl = null;
+
+    if (status === "aprovado") {
+      const qrCodeBuffer = await QRCode.toBuffer(bookingInfo);
+
+      const fakeFile: Express.Multer.File = {
+        fieldname: "qrCode",
+        originalname: "qrcode.png",
+        encoding: "7bit",
+        mimetype: "image/png",
+        size: qrCodeBuffer.length,
+        buffer: qrCodeBuffer,
+        destination: "",
+        filename: "",
+        path: "",
+        stream: null as any,
+      };
+      console.log("Iniciano upload da imagem para o ImgBB...");
+
+      qrCodeUrl = await uploadImageToImgBB(fakeFile);
     }
 
     await transporter.sendMail({
@@ -270,16 +289,16 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
         });
       }
     }
+
     const updatedBooking = await prisma.booking.update({
       where: {
         id: id,
       },
       data: {
         status: status,
-        qrCode: status === "aprovado" ? qrCodeDataURL : null,
+        qrCode: qrCodeUrl,
       },
     });
-    console.log(updatedBooking);
 
     await prisma.notification.create({
       data: {
@@ -387,6 +406,7 @@ export const updateBooking = async (req: any, res: Response) => {
         },
       },
     });
+    console.log(user);
 
     await prisma.notification.create({
       data: {
