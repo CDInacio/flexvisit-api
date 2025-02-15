@@ -4,6 +4,7 @@ import { transporter } from "../services/email-service";
 import QRCode from "qrcode";
 import { calculateDateDifference } from "../utils/dataDiference";
 import { uploadImageToImgBB } from "../utils/img";
+import { compressQrCode } from "../utils/compressQrCode";
 
 export const createBooking = async (req: any, res: Response) => {
   const { formId, ...formData } = req.body;
@@ -203,7 +204,8 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
     const qrCodeDataURL = await QRCode.toDataURL(bookingInfo);
 
     if (status === "aprovado" && qrCodeDataURL) {
-      updateData.qrCode = qrCodeDataURL;
+      const compressedQrCode = await compressQrCode(qrCodeDataURL);
+      updateData.qrCode = `data:image/jpeg;base64,${compressedQrCode}`;
     }
 
     // let qrCodeUrl = null;
