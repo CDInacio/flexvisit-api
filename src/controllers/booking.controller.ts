@@ -168,7 +168,7 @@ export const getUserBookings = async (req: any, res: Response) => {
 
 export const updateBookingStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { status, userId, role } = req.body;
+  const { status, userId, role, observation } = req.body;
 
   try {
     const user = await prisma.users.findUnique({
@@ -200,7 +200,7 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       - Link para mais detalhes: https:seusite.com/agendamento/${id}
     `;
 
-    const updateData: any = { status: status };
+    const updateData: any = { status: status, observation: observation };
     const qrCodeDataURL = await QRCode.toDataURL(bookingInfo);
 
     if (status === "aprovado" && qrCodeDataURL) {
