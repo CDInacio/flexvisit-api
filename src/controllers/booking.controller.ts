@@ -199,37 +199,29 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       - Link para mais detalhes: https:seusite.com/agendamento/${id}
     `;
 
-    // const qrCodeDataURL = await QRCode.toDataURL(bookingInfo);
+    const qrCodeDataURL = await QRCode.toDataURL(bookingInfo);
 
-    let qrCodeUrl = null;
+    // let qrCodeUrl = null;
 
-    if (status === "aprovado") {
-      const qrCodeBuffer = await QRCode.toBuffer(bookingInfo);
+    // if (status === "aprovado") {
+    //   const qrCodeBuffer = await QRCode.toBuffer(bookingInfo);
 
-      const fakeFile: Express.Multer.File = {
-        fieldname: "qrCode",
-        originalname: "qrcode.png",
-        encoding: "7bit",
-        mimetype: "image/png",
-        size: qrCodeBuffer.length,
-        buffer: qrCodeBuffer,
-        destination: "",
-        filename: "",
-        path: "",
-        stream: null as any,
-      };
-      console.log("Iniciano upload da imagem para o ImgBB...");
+    //   const fakeFile: Express.Multer.File = {
+    //     fieldname: "qrCode",
+    //     originalname: "qrcode.png",
+    //     encoding: "7bit",
+    //     mimetype: "image/png",
+    //     size: qrCodeBuffer.length,
+    //     buffer: qrCodeBuffer,
+    //     destination: "",
+    //     filename: "",
+    //     path: "",
+    //     stream: null as any,
+    //   };
+    //   console.log("Iniciano upload da imagem para o ImgBB...");
 
-      try {
-        qrCodeUrl = await uploadImageToImgBB(fakeFile);
-        console.log("✅ QR Code hospedado no ImgBB:", qrCodeUrl);
-      } catch (err) {
-        console.error(
-          "❌ Erro no upload para ImgBB:",
-          (err as any).response?.data || (err as Error).message
-        );
-      }
-    }
+    //   qrCodeUrl = await uploadImageToImgBB(fakeFile);
+    // }
 
     await transporter.sendMail({
       from: `"Agendamento" <${process.env.EMAIL_USER}>`,
@@ -304,7 +296,7 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       },
       data: {
         status: status,
-        qrCode: qrCodeUrl,
+        qrCode: qrCodeDataURL,
       },
     });
 
