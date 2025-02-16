@@ -200,35 +200,16 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       - Link para mais detalhes: https:seusite.com/agendamento/${id}
     `;
 
-    const updateData: any = { status: status, observation: observation };
+    const updateData: any = {
+      status: status,
+      observation: req.body.observation,
+    };
     const qrCodeDataURL = await QRCode.toDataURL(bookingInfo);
 
     if (status === "aprovado" && qrCodeDataURL) {
       const compressedQrCode = await compressQrCode(qrCodeDataURL);
       updateData.qrCode = `data:image/jpeg;base64,${compressedQrCode}`;
     }
-
-    // let qrCodeUrl = null;
-
-    // if (status === "aprovado") {
-    //   const qrCodeBuffer = await QRCode.toBuffer(bookingInfo);
-
-    //   const fakeFile: Express.Multer.File = {
-    //     fieldname: "qrCode",
-    //     originalname: "qrcode.png",
-    //     encoding: "7bit",
-    //     mimetype: "image/png",
-    //     size: qrCodeBuffer.length,
-    //     buffer: qrCodeBuffer,
-    //     destination: "",
-    //     filename: "",
-    //     path: "",
-    //     stream: null as any,
-    //   };
-    //   console.log("Iniciano upload da imagem para o ImgBB...");
-
-    //   qrCodeUrl = await uploadImageToImgBB(fakeFile);
-    // }
 
     await transporter.sendMail({
       from: `"Agendamento" <${process.env.EMAIL_USER}>`,
