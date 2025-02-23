@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../services/prisma";
 
 export const getNotifications = async (req: any, res: Response) => {
-  const isAdmin = req.user.role === 'ADMIN';
+  const isAdmin = req.user.role === "ADMIN" || req.user.role === "ATTANDANT";
 
   try {
     const condition = isAdmin
@@ -23,15 +23,16 @@ export const getNotifications = async (req: any, res: Response) => {
   }
 };
 
-
 export const markAsRead = async (req: any, res: Response) => {
   try {
-    const isAdmin = req.user.role === 'ADMIN';
+    const isAdmin = req.user.role === "ADMIN" || req.user.role === "ATTANDANT";
 
-    const condition = isAdmin ? {
-      recipientId: null,
-      read: false,
-    } : { recipientId: req.user.id, read: false, };
+    const condition = isAdmin
+      ? {
+          recipientId: null,
+          read: false,
+        }
+      : { recipientId: req.user.id, read: false };
 
     await prisma.notification.updateMany({
       where: condition,
@@ -42,7 +43,8 @@ export const markAsRead = async (req: any, res: Response) => {
     res.status(200).json({ message: "Notificações marcadas como lidas!" });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: "Erro ao marcar notificações como lidas." });
+    return res
+      .status(500)
+      .json({ message: "Erro ao marcar notificações como lidas." });
   }
-
-}
+};
