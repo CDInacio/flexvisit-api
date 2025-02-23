@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Role } from "@prisma/client";
 import { uploadImageToImgBB } from "../utils/img";
-import { ObjectId,  } from "mongodb";
+import { ObjectId } from "mongodb";
 
 const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, 10);
@@ -54,40 +54,45 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 export const signin = async (req: Request, res: Response) => {
-  const { email, password } = req.body as User
-  console.log(req.body)
+  const { email, password } = req.body as User;
+  console.log(req.body);
   try {
     const user = await prisma.users.findUnique({
       where: { email },
-    })
+    });
 
     if (!user) {
-      return res.status(400).json({ message: 'Usuário não cadastrado!' })
+      return res.status(400).json({ message: "Usuário não cadastrado!" });
     }
 
     if (!(await bcrypt.compare(password, user.password))) {
-      return res.status(400).json({ message: 'As credenciais fornecidas estão incorretas. Por favor, verifique o e-mail e a senha e tente novamente.' })
+      return res
+        .status(400)
+        .json({
+          message:
+            "As credenciais fornecidas estão incorretas. Por favor, verifique o e-mail e a senha e tente novamente.",
+        });
     }
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET as string,
-      {  algorithm: "HS256", expiresIn: '15d' },
-    )
+      { algorithm: "HS256", expiresIn: "15d" }
+    );
 
-    const  payload = {
+    const payload = {
       id: user.id,
       fullname: user.fullname,
       email: user.email,
       profileImage: user.profileImage,
       role: user.role,
-    }
-    console.log(payload)
-    return res.status(200).send({ user: payload, token })
+    };
+    console.log(payload);
+    return res.status(200).send({ user: payload, token });
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
-}
+};
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -100,8 +105,6 @@ export const getAllUsers = async (req: Request, res: Response) => {
     console.log(e);
   }
 };
-
-
 
 export const getUser = async (req: any, res: Response) => {
   try {
@@ -117,6 +120,7 @@ export const getUser = async (req: any, res: Response) => {
     return res.status(200).json(user);
   } catch (e) {
     console.log(e);
+    return res.status(500).json({ message: "Erro interno do servidor." });
   }
 };
 
@@ -131,14 +135,14 @@ export const updateUserImg = async (req: Request, res: Response) => {
     }
 
     const imageFile = req.file;
-    console.log(imageFile)
+    console.log(imageFile);
     if (!imageFile) {
       return res.status(400).json({ message: "Imagem não fornecida." });
     }
 
     // Faz o upload para o ImgBB
     const imageUrl = await uploadImageToImgBB(imageFile);
-    console.log(imageUrl)
+    console.log(imageUrl);
     // Atualiza o usuário no banco
     const updatedUser = await prisma.users.update({
       where: { id },
@@ -194,8 +198,6 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-
-
 export const getUserDetails = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -248,7 +250,9 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
     return res.status(200).json({ accessToken: newAccessToken });
   } catch (error) {
     console.error(error);
-    return res.status(403).json({ message: "Refresh Token inválido ou expirado!" });
+    return res
+      .status(403)
+      .json({ message: "Refresh Token inválido ou expirado!" });
   }
 };
 
