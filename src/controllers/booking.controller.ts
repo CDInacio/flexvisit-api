@@ -188,16 +188,17 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
     });
 
     const bookingInfo = `
-      Agendamento:
-      - Nome: ${user.fullname}
-      - Status: ${status}
-      - Data: ${req.body.booking.data.data}
-      - Hora: ${req.body.booking.data["starttime"] || ""} - ${
+      <h2><strong>Agendamento:</strong></h2>
+      <strong>Nome</strong> ${user.fullname}
+      <strong>Status:</strong> ${status}
+      <strong>Data:</strong> ${req.body.booking.data.data}
+      <strong>Hora:</strong> ${req.body.booking.data["starttime"] || ""} - ${
       req.body.booking.data["endtime"] || ""
     }
-      - Formulário: ${form?.form_name}
-      - Observação: ${req.body.observation || ""}
-      - Link para mais detalhes: https:seusite.com/agendamento/${id}
+      <strong>Formulário:</strong> ${form?.form_name}
+      <strong>Observação:</strong> ${
+        req.body.observation || "Não há observações."
+      }
     `;
 
     const updateData: any = {
