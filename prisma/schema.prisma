@@ -24,7 +24,7 @@ model Users {
   email         String         @unique
   profileImage  String?
   password      String
-  role          Role           @default(USER)
+  role          Role           @default(VISITOR)
   createdAt     DateTime       @default(now())
   forms         Form[]
   bookings      Booking[]
@@ -87,7 +87,7 @@ model Timeslot {
 }
 
 enum Role {
-  USER
+  VISITOR
   ADMIN
   ATTENDANT
   COORDINATOR
