@@ -65,12 +65,16 @@ const signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             where: { email },
         });
         if (!user) {
-            return res.status(400).json({ message: 'Usuário não cadastrado!' });
+            return res.status(400).json({ message: "Usuário não cadastrado!" });
         }
         if (!(yield bcrypt_1.default.compare(password, user.password))) {
-            return res.status(400).json({ message: 'As credenciais fornecidas estão incorretas. Por favor, verifique o e-mail e a senha e tente novamente.' });
+            return res
+                .status(400)
+                .json({
+                message: "As credenciais fornecidas estão incorretas. Por favor, verifique o e-mail e a senha e tente novamente.",
+            });
         }
-        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, { algorithm: "HS256", expiresIn: '15d' });
+        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, { algorithm: "HS256", expiresIn: "15d" });
         const payload = {
             id: user.id,
             fullname: user.fullname,
@@ -112,6 +116,7 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (e) {
         console.log(e);
+        return res.status(500).json({ message: "Erro interno do servidor." });
     }
 });
 exports.getUser = getUser;
@@ -221,7 +226,9 @@ const refreshAccessToken = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
     catch (error) {
         console.error(error);
-        return res.status(403).json({ message: "Refresh Token inválido ou expirado!" });
+        return res
+            .status(403)
+            .json({ message: "Refresh Token inválido ou expirado!" });
     }
 });
 exports.refreshAccessToken = refreshAccessToken;

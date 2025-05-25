@@ -28,6 +28,7 @@ const prisma_1 = require("../services/prisma");
 const email_service_1 = require("../services/email-service");
 const qrcode_1 = __importDefault(require("qrcode"));
 const dataDiference_1 = require("../utils/dataDiference");
+const compressQrCode_1 = require("../utils/compressQrCode");
 const createBooking = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const _a = req.body, { formId } = _a, formData = __rest(_a, ["formId"]);
     try {
@@ -171,7 +172,7 @@ const getUserBookings = (req, res) => __awaiter(void 0, void 0, void 0, function
 exports.getUserBookings = getUserBookings;
 const updateBookingStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const { status, userId, role } = req.body;
+    const { status, userId, role, observation } = req.body;
     try {
         const user = yield prisma_1.prisma.users.findUnique({
             where: {
@@ -196,29 +197,15 @@ const updateBookingStatus = (req, res) => __awaiter(void 0, void 0, void 0, func
       - Observação: ${req.body.observation || ""}
       - Link para mais detalhes: https:seusite.com/agendamento/${id}
     `;
-        const updateData = { status: status };
+        const updateData = {
+            status: status,
+            observation: req.body.observation,
+        };
         const qrCodeDataURL = yield qrcode_1.default.toDataURL(bookingInfo);
         if (status === "aprovado" && qrCodeDataURL) {
-            updateData.qrCode = qrCodeDataURL;
+            const compressedQrCode = yield (0, compressQrCode_1.compressQrCode)(qrCodeDataURL);
+            updateData.qrCode = `data:image/jpeg;base64,${compressedQrCode}`;
         }
-        // let qrCodeUrl = null;
-        // if (status === "aprovado") {
-        //   const qrCodeBuffer = await QRCode.toBuffer(bookingInfo);
-        //   const fakeFile: Express.Multer.File = {
-        //     fieldname: "qrCode",
-        //     originalname: "qrcode.png",
-        //     encoding: "7bit",
-        //     mimetype: "image/png",
-        //     size: qrCodeBuffer.length,
-        //     buffer: qrCodeBuffer,
-        //     destination: "",
-        //     filename: "",
-        //     path: "",
-        //     stream: null as any,
-        //   };
-        //   console.log("Iniciano upload da imagem para o ImgBB...");
-        //   qrCodeUrl = await uploadImageToImgBB(fakeFile);
-        // }
         yield email_service_1.transporter.sendMail({
             from: `"Agendamento" <${process.env.EMAIL_USER}>`,
             to: user.email,

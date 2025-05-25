@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.markAsRead = exports.getNotifications = void 0;
 const prisma_1 = require("../services/prisma");
 const getNotifications = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const isAdmin = req.user.role === 'ADMIN';
+    const isAdmin = req.user.role === "ADMIN" || req.user.role === "ATTANDANT";
     try {
         const condition = isAdmin
             ? { recipientId: null, read: false }
@@ -33,11 +33,13 @@ const getNotifications = (req, res) => __awaiter(void 0, void 0, void 0, functio
 exports.getNotifications = getNotifications;
 const markAsRead = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const isAdmin = req.user.role === 'ADMIN';
-        const condition = isAdmin ? {
-            recipientId: null,
-            read: false,
-        } : { recipientId: req.user.id, read: false, };
+        const isAdmin = req.user.role === "ADMIN" || req.user.role === "ATTANDANT";
+        const condition = isAdmin
+            ? {
+                recipientId: null,
+                read: false,
+            }
+            : { recipientId: req.user.id, read: false };
         yield prisma_1.prisma.notification.updateMany({
             where: condition,
             data: {
@@ -48,7 +50,9 @@ const markAsRead = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
     catch (error) {
         console.log(error);
-        return res.status(500).json({ message: "Erro ao marcar notificações como lidas." });
+        return res
+            .status(500)
+            .json({ message: "Erro ao marcar notificações como lidas." });
     }
 });
 exports.markAsRead = markAsRead;
